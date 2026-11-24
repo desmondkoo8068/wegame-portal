@@ -1,26 +1,95 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * CSS architecture
+ * ----------------
+ * 1. Design tokens (@theme): every colour/font lives here once. Tailwind v4
+ *    turns each `--color-*` token into utilities automatically, e.g.
+ *    --color-brand  ->  bg-brand, text-brand, border-brand, fill-brand.
+ *    Changing the brand colour = changing one line.
+ * 2. Base styles (@layer base): element defaults (body, focus rings).
+ * 3. Components (@layer components): small reusable class names for patterns
+ *    used in many places (buttons, dropdown panels), so the JSX stays short
+ *    and every button looks the same.
+ * Everything else is written as Tailwind utilities directly in the JSX.
+ */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+/* ---------- 1. Design tokens ---------- */
+@theme {
+  /* The site uses a single dark theme, like most game portals. */
+  --color-page: #0f1115; /* page background */
+  --color-surface: #171a21; /* navbar, footer, cards */
+  --color-raised: #20242d; /* dropdowns, hover states */
+  --color-line: rgb(255 255 255 / 0.08); /* borders and dividers */
+  --color-muted: #9aa1ad; /* secondary text */
+  --color-brand: #ffb400; /* accent: buttons, active links */
+  --color-brand-hover: #ffc633;
+
+  --font-sans: var(--font-geist-sans), "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ---------- 2. Base ---------- */
+@layer base {
+  html {
+    color-scheme: dark; /* dark native scrollbars and form controls */
+  }
+
+  body {
+    background: var(--color-page);
+    color: #e8eaed;
+    font-family: var(--font-sans);
+  }
+
+  /* Visible focus ring for keyboard users only (not on mouse click). */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---------- 3. Components ---------- */
+@layer components {
+  /* Centered, max-width page container with responsive side padding. */
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Desktop nav link; aria-current="page" marks the active page. */
+  .nav-link {
+    @apply relative py-5 text-sm font-medium text-muted transition-colors hover:text-white;
+  }
+  .nav-link[aria-current="page"] {
+    @apply text-white;
+  }
+  /* Brand-coloured underline under the active link. */
+  .nav-link[aria-current="page"]::after {
+    content: "";
+    @apply absolute inset-x-0 bottom-3 h-0.5 rounded-full bg-brand;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-brand px-4 py-2 text-sm font-semibold text-page transition-colors hover:bg-brand-hover;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-line px-4 py-2 text-sm font-medium text-white transition-colors hover:border-white/30 hover:bg-white/5;
+  }
+
+  .dropdown-panel {
+    @apply rounded-lg border border-line bg-raised p-1.5 shadow-xl shadow-black/40;
+  }
+  .dropdown-item {
+    @apply flex items-center gap-2 rounded-md px-3 py-2 text-sm text-white/90 transition-colors hover:bg-white/5 hover:text-white;
+  }
+
+  /* Stand-in for a QR code image: a checker pattern made with gradients. */
+  .qr-placeholder {
+    @apply size-24 rounded-md border-4 border-white bg-white;
+    background-image:
+      linear-gradient(45deg, #111 25%, transparent 25%, transparent 75%, #111 75%),
+      linear-gradient(45deg, #111 25%, transparent 25%, transparent 75%, #111 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 6px 6px;
+  }
 }
