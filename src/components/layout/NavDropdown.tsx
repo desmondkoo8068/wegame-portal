@@ -16,13 +16,13 @@ export default function NavDropdown({ item }: { item: NavItem }) {
   const panelId = `nav-dropdown-${item.id}`;
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative h-full">
       <button
         type="button"
         onClick={toggle}
         aria-expanded={isOpen}
         aria-controls={panelId}
-        className={`nav-link flex items-center gap-1 ${isOpen ? "text-white" : ""}`}
+        className={`nav-link gap-1 ${isOpen ? "text-white" : ""}`}
       >
         {item.label}
         <ChevronDownIcon
@@ -33,7 +33,7 @@ export default function NavDropdown({ item }: { item: NavItem }) {
       </button>
 
       {isOpen && (
-        <div id={panelId} className="absolute left-0 top-full pt-2">
+        <div id={panelId} className="absolute left-0 top-full">
           <ul className="dropdown-panel min-w-48">
             {item.children?.map((child) => (
               <li key={child.label}>

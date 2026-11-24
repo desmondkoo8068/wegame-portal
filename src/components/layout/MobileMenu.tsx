@@ -1,6 +1,6 @@
 "use client";
 /**
- * MobileMenu: the slide-down navigation panel shown below the navbar on
+ * MobileMenu: the slide-down navigation panel shown below the header on
  * screens narrower than `lg` (1024px).
  *
  * The open/closed flag is in Redux (ui.isMobileMenuOpen) because the
@@ -15,10 +15,10 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { mainNav, utilityLinks, downloadOptions } from "@/data/navigation";
+import { downloadOptions, mainNav, utilityLinks } from "@/data/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { closeMobileMenu } from "@/store/slices/uiSlice";
-import { DownloadIcon, ExternalIcon, iconsByName } from "@/components/ui/Icons";
+import { DownloadIcon, ExternalIcon, UserIcon, iconsByName } from "@/components/ui/Icons";
 
 // Must match Tailwind's `lg` breakpoint, where the desktop nav appears.
 const DESKTOP_QUERY = "(min-width: 1024px)";
@@ -59,21 +59,18 @@ export default function MobileMenu() {
     <div
       id="mobile-menu"
       // `inert` hides the closed menu from keyboard focus and screen readers,
-      // while still letting it stay in the DOM for the slide animation.
+      // while keeping it in the DOM for the slide animation.
       inert={!isOpen}
-      className={`fixed inset-x-0 top-16 z-40 bottom-0 overflow-y-auto bg-surface/95 backdrop-blur-md transition-all duration-300 lg:hidden ${
+      className={`fixed inset-x-0 bottom-0 top-[var(--header-h)] z-40 overflow-y-auto bg-page/95 backdrop-blur-md transition-all duration-300 lg:hidden ${
         isOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0"
       }`}
     >
-      <nav aria-label="Mobile" className="container-page flex flex-col gap-6 py-6">
-        {/* Main links. Dropdown items show their children as a flat group. */}
+      <nav aria-label="移动端导航" className="container-page flex flex-col gap-6 py-6">
         <ul className="flex flex-col">
           {mainNav.map((item) =>
             item.children ? (
               <li key={item.id} className="border-b border-line py-3">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
-                  {item.label}
-                </p>
+                <p className="mb-2 text-xs font-bold text-muted">{item.label}</p>
                 <ul className="flex flex-col gap-1">
                   {item.children.map((child) => (
                     <li key={child.label}>
@@ -98,7 +95,7 @@ export default function MobileMenu() {
                   href={item.href ?? "#"}
                   onClick={close}
                   aria-current={pathname === item.href ? "page" : undefined}
-                  className="block py-4 text-lg font-medium text-white aria-[current=page]:text-brand"
+                  className="block py-4 text-lg font-bold text-white aria-[current=page]:text-brand"
                 >
                   {item.label}
                 </Link>
@@ -107,13 +104,9 @@ export default function MobileMenu() {
           )}
         </ul>
 
-        {/* Download options get their own section on mobile. */}
         <section aria-labelledby="mobile-download-heading">
-          <h2
-            id="mobile-download-heading"
-            className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted"
-          >
-            Download Client
+          <h2 id="mobile-download-heading" className="mb-2 text-xs font-bold text-muted">
+            下载客户端
           </h2>
           <div className="grid gap-2 sm:grid-cols-3">
             {downloadOptions.map((option) => (
@@ -121,7 +114,7 @@ export default function MobileMenu() {
                 key={option.label}
                 href={option.href}
                 onClick={close}
-                className="btn-outline justify-start"
+                className="btn-glass justify-start"
               >
                 <DownloadIcon width={16} height={16} className="text-brand" />
                 {option.label}
@@ -147,8 +140,9 @@ export default function MobileMenu() {
           })}
         </div>
 
-        <button type="button" className="btn-primary w-full">
-          Log in
+        <button type="button" className="btn-primary w-full py-3">
+          <UserIcon width={18} height={18} />
+          登录
         </button>
       </nav>
     </div>

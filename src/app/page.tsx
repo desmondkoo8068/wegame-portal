@@ -1,24 +1,38 @@
 /**
- * Home page.
+ * Home page: a recreation of wegame.com.cn/home.
  *
- * Temporary placeholder sections so the sticky navbar and footer can be
- * tested. The hero slider and game sections replace these in step 3.
+ * This file stays a Server Component: it only lists the full-screen pages in
+ * order. Each page is its own component in src/components/home, and the
+ * order here must match `pages` in src/data/home.ts (used by the side nav).
  */
+import KvSection from "@/components/home/KvSection";
+import TopicSection from "@/components/home/TopicSection";
+import { FrameFastSection, FrameUpdateSection } from "@/components/home/FrameSections";
+import FeatureSection from "@/components/home/FeatureSection";
+import { TeamUpSection, TeamWorldSection } from "@/components/home/TeamSections";
+import UniversitySection from "@/components/home/UniversitySection";
+import MoreSection from "@/components/home/MoreSection";
+import SideNav from "@/components/layout/SideNav";
+import PageTracker from "@/components/layout/PageTracker";
+
 export default function Home() {
   return (
-    <main className="flex-1">
-      <section className="container-page flex min-h-[70vh] flex-col justify-center gap-4 py-24">
-        <p className="text-sm font-semibold uppercase tracking-widest text-brand">WeGame</p>
-        <h1 className="max-w-2xl text-4xl font-bold leading-tight text-white sm:text-5xl">
-          Play better together.
-        </h1>
-        <p className="max-w-xl text-muted">Hero slider coming in step 3.</p>
-      </section>
-      <section className="container-page min-h-[80vh] py-24">
-        <div className="h-full rounded-xl border border-dashed border-line p-8 text-muted">
-          Game sections coming in step 3. Scroll to see the navbar turn solid.
-        </div>
-      </section>
+    <main>
+      {/* One h1 per page for accessibility/SEO; the visible titles are images. */}
+      <h1 className="sr-only">WeGame：一起更好玩</h1>
+
+      <KvSection />
+      <TopicSection />
+      <FrameUpdateSection />
+      <FrameFastSection />
+      <FeatureSection />
+      <TeamUpSection />
+      <TeamWorldSection />
+      <UniversitySection />
+      <MoreSection />
+
+      <SideNav />
+      <PageTracker />
     </main>
   );
 }

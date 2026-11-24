@@ -9,6 +9,7 @@
  */
 import { configureStore } from "@reduxjs/toolkit";
 import uiReducer from "./slices/uiSlice";
+import gamesReducer from "./slices/gamesSlice";
 
 export const makeStore = () =>
   configureStore({
@@ -16,6 +17,7 @@ export const makeStore = () =>
     // e.g. state.ui.isMobileMenuOpen. Add new feature slices here.
     reducer: {
       ui: uiReducer,
+      games: gamesReducer,
     },
   });
 

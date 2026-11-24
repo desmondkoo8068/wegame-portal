@@ -1,7 +1,7 @@
 "use client";
 /**
- * DownloadMenu: the highlighted "Download Client" button and its panel of
- * platform options (Windows, Mac Intel, Mac M-series), like the real site.
+ * DownloadMenu: the "下载客户端" header button and its panel of platform
+ * options (Windows, Mac Intel, Mac M-series), like the real site.
  *
  * It reuses useDropdown, so it behaves exactly like the other dropdowns and
  * opening it closes any other open dropdown (one shared Redux value).
@@ -20,10 +20,10 @@ export default function DownloadMenu() {
         onClick={toggle}
         aria-expanded={isOpen}
         aria-controls="download-panel"
-        className="btn-primary"
+        className="btn-glass"
       >
-        <DownloadIcon width={16} height={16} />
-        Download Client
+        <DownloadIcon width={18} height={18} />
+        下载客户端
       </button>
 
       {isOpen && (
@@ -40,7 +40,7 @@ export default function DownloadMenu() {
               ))}
             </ul>
             <p className="mt-1 border-t border-line px-3 pt-2 text-xs leading-relaxed text-muted">
-              Not sure which Mac? Apple menu &rarr; About This Mac &rarr; Chip.
+              左上角苹果图标 → 关于本机 → 处理器，可查看芯片类型
             </p>
           </div>
         </div>

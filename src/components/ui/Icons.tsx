@@ -50,20 +50,6 @@ export const ChevronDownIcon = (p: IconProps) => (
   </BaseIcon>
 );
 
-export const ChangelogIcon = (p: IconProps) => (
-  <BaseIcon {...p}>
-    <path d="M7 3h7l5 5v13H7z" />
-    <path d="M14 3v5h5M10 13h6M10 17h6" />
-  </BaseIcon>
-);
-
-export const HelpIcon = (p: IconProps) => (
-  <BaseIcon {...p}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01" />
-  </BaseIcon>
-);
-
 export const DownloadIcon = (p: IconProps) => (
   <BaseIcon {...p}>
     <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
@@ -76,8 +62,38 @@ export const ExternalIcon = (p: IconProps) => (
   </BaseIcon>
 );
 
+export const SearchIcon = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <circle cx="11" cy="11" r="6.5" />
+    <path d="M16 16l4 4" />
+  </BaseIcon>
+);
+
+export const UserIcon = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <circle cx="12" cy="8" r="3.5" />
+    <path d="M5 20l.6-2.9a10 10 0 0 1 12.8 0L19 20z" />
+  </BaseIcon>
+);
+
+/** Clock with an arrow, like the real site's changelog icon. */
+export const ChangelogIcon = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <path d="M5.2 16.5A8 8 0 1 1 8 19" />
+    <path d="M12 8v4.5l-3 2" />
+  </BaseIcon>
+);
+
+/** Speech bubble with lines, like the real site's feedback icon. */
+export const FeedbackIcon = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <path d="M12 20l8-4.5V5H4v10.5h8" />
+    <path d="M8 9h8M8 12h4" />
+  </BaseIcon>
+);
+
 /** Look up an icon by name; used for data-driven icon links. */
 export const iconsByName = {
   changelog: ChangelogIcon,
-  help: HelpIcon,
+  feedback: FeedbackIcon,
 } as const;
