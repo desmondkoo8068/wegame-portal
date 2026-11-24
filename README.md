@@ -2,14 +2,14 @@
 
 A responsive recreation of the [WeGame home page](https://www.wegame.com.cn/home/), installable as a Progressive Web App, with the geolocation + local currency bonus.
 
-**Live:** _Vercel URL to be added after deployment_
+**Live:** https://wegame-portal.vercel.app · **Repo:** https://github.com/desmondkoo8068/wegame-portal
 
 | Requirement | Where |
 |---|---|
 | Responsive UI mockup (desktop / tablet / mobile) | `src/components/home`, `src/components/layout` |
 | Core interactions | Feature slider, rotating slogans, header dropdowns, sticky header, 01–05 side nav, mobile menu |
 | PWA: manifest, icons, service worker, offline page | `src/app/manifest.ts`, `public/sw.js`, `public/offline.html` |
-| Deployed on Vercel | See **Live** above |
+| Deployed on Vercel | https://wegame-portal.vercel.app (redeploys on every push to `main`) |
 | Bonus: geolocation → local currency | 地区与货币 button in the header (`src/components/locale`) |
 
 ## Running it
