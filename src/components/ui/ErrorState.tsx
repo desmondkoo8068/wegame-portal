@@ -1,5 +1,5 @@
 /**
- * ErrorState: friendly message + "Try again" button for failed requests.
+ * ErrorState: friendly message + "重试" (retry) button for failed requests.
  * role="alert" makes screen readers announce it as soon as it appears.
  *
  * `compact` is a one-line version for secondary sections, so a single
@@ -33,7 +33,7 @@ export default function ErrorState({
             onClick={onRetry}
             className="font-semibold text-brand hover:underline"
           >
-            Try again
+            重试
           </button>
         )}
       </div>
@@ -49,7 +49,7 @@ export default function ErrorState({
       <p className="max-w-md text-sm text-muted">{message}</p>
       {onRetry && (
         <button type="button" onClick={onRetry} className="btn-outline mt-2">
-          Try again
+          重试
         </button>
       )}
     </div>

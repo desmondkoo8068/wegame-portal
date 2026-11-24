@@ -19,6 +19,7 @@ import { downloadOptions, mainNav, utilityLinks } from "@/data/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { closeMobileMenu } from "@/store/slices/uiSlice";
 import { DownloadIcon, ExternalIcon, UserIcon, iconsByName } from "@/components/ui/Icons";
+import LocaleButton from "@/components/locale/LocaleButton";
 
 // Must match Tailwind's `lg` breakpoint, where the desktop nav appears.
 const DESKTOP_QUERY = "(min-width: 1024px)";
@@ -139,6 +140,8 @@ export default function MobileMenu() {
             );
           })}
         </div>
+
+        <LocaleButton className="w-full justify-center py-3" />
 
         <button type="button" className="btn-primary w-full py-3">
           <UserIcon width={18} height={18} />

@@ -3,6 +3,7 @@ import StoreProvider from "@/store/StoreProvider";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ServiceWorkerRegister from "@/components/layout/ServiceWorkerRegister";
+import LocaleModal from "@/components/locale/LocaleModal";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Navbar />
           {children}
           <Footer />
+          <LocaleModal />
           <ServiceWorkerRegister />
         </StoreProvider>
       </body>

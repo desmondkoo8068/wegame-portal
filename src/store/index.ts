@@ -10,6 +10,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import uiReducer from "./slices/uiSlice";
 import gamesReducer from "./slices/gamesSlice";
+import geoReducer from "./slices/geoSlice";
 
 export const makeStore = () =>
   configureStore({
@@ -18,6 +19,7 @@ export const makeStore = () =>
     reducer: {
       ui: uiReducer,
       games: gamesReducer,
+      geo: geoReducer,
     },
   });
 

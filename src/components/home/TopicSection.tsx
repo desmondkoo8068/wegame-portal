@@ -14,6 +14,7 @@
 import Image from "next/image";
 import type { Game } from "@/data/games";
 import ErrorState from "@/components/ui/ErrorState";
+import Price from "@/components/ui/Price";
 import { Stage, StageItem } from "@/components/ui/Stage";
 import { useCarousel } from "@/lib/useCarousel";
 import { useGames } from "@/lib/useGames";
@@ -135,16 +136,40 @@ export default function TopicSection() {
   );
 }
 
-function Poster({ game, sizes }: { game: Game; sizes: string }) {
+/**
+ * One poster with its price (in the visitor's currency, via <Price>).
+ * "overlay": price slides up on hover (desktop wall).
+ * "below":   price always visible under the poster (mobile marquee).
+ */
+function Poster({
+  game,
+  sizes,
+  priceLayout = "overlay",
+}: {
+  game: Game;
+  sizes: string;
+  priceLayout?: "overlay" | "below";
+}) {
   return (
-    <Image
-      src={game.poster}
-      alt={game.title}
-      width={760}
-      height={1000}
-      sizes={sizes}
-      className="h-auto w-full rounded-md shadow-2xl shadow-black/60 transition-transform duration-300 hover:scale-105"
-    />
+    <figure className="group relative">
+      <Image
+        src={game.poster}
+        alt={game.title}
+        width={760}
+        height={1000}
+        sizes={sizes}
+        className="h-auto w-full rounded-md shadow-2xl shadow-black/60 transition-transform duration-300 group-hover:scale-105"
+      />
+      <figcaption
+        className={
+          priceLayout === "overlay"
+            ? "pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 rounded-b-md bg-gradient-to-t from-black/90 to-transparent px-2 pb-2 pt-6 text-center text-xs opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+            : "mt-1.5 text-center text-xs"
+        }
+      >
+        <Price priceCny={game.priceCny} />
+      </figcaption>
+    </figure>
   );
 }
 
@@ -189,7 +214,7 @@ function PosterMarquee({ games, reverse = false }: { games: Game[]; reverse?: bo
         {[...games, ...games].map((game, i) => (
           // Second copy is hidden from screen readers to avoid reading twice.
           <li key={`${game.id}-${i}`} aria-hidden={i >= games.length} className="w-28 sm:w-36">
-            <Poster game={game} sizes="144px" />
+            <Poster game={game} sizes="144px" priceLayout="below" />
           </li>
         ))}
       </ul>

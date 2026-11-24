@@ -4,7 +4,7 @@
  *
  * Desktop (>= lg): logo · 首页 / 商店 / 开发者平台▾ · search box ·
  *                  creator badge · changelog + feedback icons ·
- *                  下载客户端▾ · 登录
+ *                  currency (地区与货币) · 下载客户端▾ · 登录
  * Mobile/tablet:   logo · hamburger (links live in <MobileMenu>)
  *
  * State: mobile menu + dropdowns are in Redux (shared between components).
@@ -18,6 +18,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleMobileMenu } from "@/store/slices/uiSlice";
 import NavDropdown from "./NavDropdown";
 import DownloadMenu from "./DownloadMenu";
+import LocaleButton from "@/components/locale/LocaleButton";
 import MobileMenu from "./MobileMenu";
 
 export default function Navbar() {
@@ -113,6 +114,7 @@ export default function Navbar() {
                 </a>
               );
             })}
+            <LocaleButton />
             <DownloadMenu />
             <button type="button" className="btn-glass">
               <UserIcon width={18} height={18} />
