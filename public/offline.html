@@ -1,0 +1,82 @@
+<!doctype html>
+<!--
+  Offline fallback page, shown by the service worker when a page is requested
+  while the network is down and that page isn't cached.
+
+  Deliberately a plain static file (no React, no external CSS/JS) so it can
+  always be precached and works with zero dependencies.
+-->
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#070809" />
+    <title>网络未连接 - WeGame</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(60% 50% at 50% 100%, rgb(255 129 17 / 0.35), transparent), #070809;
+        color: #fff;
+        font-family: system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        text-align: center;
+      }
+      main {
+        max-width: 420px;
+      }
+      img {
+        width: 96px;
+        height: 96px;
+        border-radius: 22px;
+      }
+      h1 {
+        margin: 24px 0 8px;
+        font-size: 24px;
+      }
+      p {
+        margin: 0 0 28px;
+        color: rgb(255 255 255 / 0.6);
+        line-height: 1.6;
+      }
+      button {
+        padding: 12px 40px;
+        border: 0;
+        border-radius: 4px;
+        background: #ff8111;
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #ff9928;
+      }
+      button:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/icons/icon-192.png" alt="WeGame" width="96" height="96" />
+      <h1>网络未连接</h1>
+      <p>看起来你已断开网络。请检查连接后重试，已浏览过的页面在联网后会自动恢复。</p>
+      <button type="button" onclick="location.reload()">重新加载</button>
+    </main>
+    <script>
+      // Reload automatically as soon as the browser reports it is back online.
+      window.addEventListener("online", () => location.reload());
+    </script>
+  </body>
+</html>
