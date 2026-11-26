@@ -1,72 +1,80 @@
 "use client";
 /**
- * SideNav: the fixed "01 大作 … 05 高校" navigation on the right edge
- * (desktop only), plus a back-to-top button.
+ * SideNav: the fixed "01 … 05" column on the right edge, and the TOP button
+ * in the bottom-right corner. Only shown in full-page mode (`fp:` variant),
+ * like the live site.
  *
- * It reads ui.activePage from Redux (kept up to date by <PageTracker>) and
- * highlights the group that page belongs to. Links are plain in-page anchors
- * (#topic etc.), so they work without JavaScript and scroll smoothly via CSS.
+ * Each item shows its number; the current page (and a hovered one) swaps
+ * the number for its name (大作, 焕新 …). Items are real links (#topic), so
+ * they also work without JavaScript; with it, a click moves the slideshow
+ * through Redux instead of jumping to the anchor.
  */
-import Image from "next/image";
-import { navForPage, pages, sideNav } from "@/data/home";
-import { useAppSelector } from "@/store/hooks";
-
-/** First page of each nav group = where its link scrolls to. */
-const targetFor = (navId: string) => pages.find((page) => page.nav === navId)?.id ?? navId;
+import type { MouseEvent } from "react";
+import { sideNav, type PageId } from "@/data/home";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { goToPage } from "@/store/slices/uiSlice";
 
 export default function SideNav() {
+  const dispatch = useAppDispatch();
   const activePage = useAppSelector((state) => state.ui.activePage);
-  const activeNav = navForPage(activePage);
+
+  const go = (page: PageId) => (event: MouseEvent) => {
+    event.preventDefault();
+    dispatch(goToPage(page));
+  };
 
   return (
-    <nav
-      aria-label="页面导航"
-      className="fixed right-6 top-1/2 z-30 hidden -translate-y-1/2 flex-col items-end gap-5 lg:flex"
-    >
-      <ol className="flex flex-col items-end gap-5">
-        {sideNav.map((item) => {
-          const isActive = item.id === activeNav;
-          return (
-            <li key={item.id}>
-              <a
-                href={`#${targetFor(item.id)}`}
-                aria-current={isActive ? "true" : undefined}
-                className={`group flex items-center gap-2 font-mono text-xs font-bold transition-colors ${
-                  isActive ? "text-brand" : "text-white/50 hover:text-white"
-                }`}
-              >
-                {/* Label slides out on hover, and stays visible when active. */}
-                <span
-                  className={`font-sans transition-all duration-300 ${
-                    isActive
-                      ? "opacity-100"
-                      : "translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
-                  }`}
+    <>
+      <nav
+        aria-label="页面导航"
+        className="fixed right-0 top-1/2 z-30 hidden w-[calc(0.8*var(--u))] -translate-y-1/2 fp:block"
+      >
+        <ol>
+          {sideNav.map((item) => {
+            const isActive = item.page === activePage;
+            return (
+              <li key={item.page}>
+                <a
+                  href={`#${item.page}`}
+                  onClick={go(item.page)}
+                  aria-current={isActive ? "true" : undefined}
+                  aria-label={`${item.num} ${item.label}`}
+                  // Number and label share one spot; CSS cross-fades them.
+                  className="group relative flex h-[calc(0.64*var(--u))] items-center justify-center text-white"
                 >
-                  {item.label}
-                </span>
-                <span className={`flex items-center gap-1.5`}>
-                  {item.num}
                   <span
-                    className={`h-px transition-all duration-300 ${isActive ? "w-6 bg-brand" : "w-3 bg-white/40"}`}
-                  />
-                </span>
-              </a>
-            </li>
-          );
-        })}
-      </ol>
+                    aria-hidden="true"
+                    className={`absolute font-num text-[calc(0.18*var(--u))] transition-opacity duration-200 ${
+                      isActive ? "opacity-0" : "opacity-30 group-hover:opacity-0"
+                    }`}
+                  >
+                    {item.num}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className={`absolute text-[calc(0.14*var(--u))] font-bold transition-opacity duration-200 ${
+                      isActive ? "opacity-100" : "opacity-0 group-hover:opacity-60"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </a>
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
 
+      {/* Back to the first page; hidden while already there. */}
       <a
         href="#kv"
+        onClick={go("kv")}
         aria-label="回到顶部"
-        className={`mt-4 transition-opacity duration-300 hover:opacity-80 ${
-          activePage === "kv" ? "pointer-events-none opacity-0" : "opacity-100"
-        }`}
         tabIndex={activePage === "kv" ? -1 : 0}
-      >
-        <Image src="/wegame/icon-gototop.png" alt="" width={80} height={80} className="size-10" />
-      </a>
-    </nav>
+        className={`fixed bottom-[calc(0.2*var(--u))] right-[calc(0.2*var(--u))] z-30 hidden size-[calc(0.4*var(--u))] bg-[url(/wegame/icon-gototop.png)] bg-contain bg-no-repeat transition-opacity duration-200 hover:opacity-100 fp:block ${
+          activePage === "kv" ? "pointer-events-none opacity-0" : "opacity-30"
+        }`}
+      />
+    </>
   );
 }

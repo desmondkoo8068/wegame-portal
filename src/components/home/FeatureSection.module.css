@@ -1,0 +1,555 @@
+/*
+ * 03 助手 page.
+ *
+ *   0. Intro ("guide"): an orange wedge sweeps in from the left with
+ *      游戏内外 / 全面助力 and two chevron outlines, for 1 second.
+ *   1–3. Slides 点位教学 / 符文与装备推荐 / AI 游戏助手, one every 5s.
+ *      Each slide is mounted fresh, so its entrance animations replay:
+ *      background → texture → character → titles → screenshot.
+ *   The tab bar at the bottom slides up once the first slide shows.
+ *
+ * Phones get a simplified, stacked version of each slide.
+ */
+.feature {
+  height: 620px;
+}
+.slide {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------- 0. Intro ---------- */
+.guide {
+  overflow: hidden;
+}
+.wedge {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  clip-path: polygon(0 0, 70% 0, 30% 100%, 0 100%);
+}
+.wedge::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - 14.54 * var(--u));
+  bottom: calc(50% - 12 * var(--u));
+  width: calc(28.09 * var(--u));
+  aspect-ratio: 25 / 40;
+  background: radial-gradient(82.23% 34.2% at 49.96% 50%, #070809 20.29%, #cc4100 80.37%, #ff8433 100%);
+}
+.arrowsFront,
+.arrowsBack {
+  position: absolute;
+  inset: 0;
+}
+/* The same chevron outline twice: once over the wedge, once beside it. */
+.arrowsFront {
+  z-index: 3;
+  clip-path: polygon(0 0, 70% 0, 30% 100%, 0 100%);
+}
+.arrowsBack {
+  z-index: 1;
+  clip-path: polygon(70% 0, 100% 0, 100% 100%, 30% 100%);
+}
+.arrowsFront span,
+.arrowsBack span {
+  position: absolute;
+  width: calc(24.5 * var(--u));
+  height: calc(4.22 * var(--u));
+  background: url(/wegame/feature-arrow.svg) no-repeat center / 100% 100%;
+}
+.arrowsFront span {
+  top: calc(1 * var(--u));
+  left: 0;
+  transform: rotate(180deg);
+}
+.arrowsBack span {
+  right: 0;
+  bottom: calc(1 * var(--u));
+}
+.guideTitle {
+  position: absolute;
+  z-index: 3;
+  width: min(80vw, calc(12 * var(--u)));
+  height: auto;
+}
+.guideTitle:first-of-type {
+  top: 30%;
+  left: 8%;
+}
+.guideTitle:last-of-type {
+  right: 8%;
+  bottom: 30%;
+}
+
+/* ---------- 1–3. Slides (phones: stacked) ---------- */
+.bgImage,
+.texture {
+  position: absolute;
+  inset: 0;
+  background: no-repeat center / cover;
+}
+.role {
+  position: absolute;
+  right: -20%;
+  bottom: 0;
+  width: 90%;
+  aspect-ratio: 1166 / 1000;
+  background: no-repeat center / 100% 100%;
+  opacity: 0.35;
+}
+.center {
+  position: absolute;
+  inset: 32px 16px auto;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.subtitle,
+.title {
+  width: min(85vw, 420px);
+  height: auto;
+}
+.inner {
+  margin-top: 16px;
+  width: min(100%, 420px);
+  background: no-repeat center / 100% 100%;
+}
+.val .bgImage { background-image: url(/wegame/feature-bg-1.png); }
+.val .texture { background-image: url(/wegame/feature-texture-1.png); background-position: 100%; }
+.val .role { background-image: url(/wegame/feature-role-1.png); }
+.val .inner { aspect-ratio: 894 / 548; background-image: url(/wegame/feature-inner-1.png); }
+
+.lol .bgImage { background-image: url(/wegame/feature-bg-2.png); }
+.lol .texture { background-image: url(/wegame/feature-texture-2.png); background-position: 0; }
+.lol .role { aspect-ratio: 1524 / 1045; background-image: url(/wegame/feature-role-2.png); }
+.lol .inner { width: min(60%, 240px); aspect-ratio: 490 / 980; background-image: url(/wegame/feature-inner-2.png); }
+
+.ai .bgImage { background-image: url(/wegame/feature-bg-4.png); }
+.ai .texture { background-image: url(/wegame/feature-texture-4.png); background-position: 0; }
+.aiPoints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.aiPoints img {
+  width: 140px;
+  height: auto;
+}
+.aiPanel {
+  display: none;
+}
+
+/* ---------- Tab bar ---------- */
+.nav {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 11;
+  height: 72px;
+  background: var(--color-page);
+}
+.nav ul {
+  display: flex;
+  height: 100%;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
+.tab {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-left: 1px solid rgb(255 255 255 / 0.1);
+  cursor: pointer;
+}
+li:first-child > .tab {
+  border-left: 0;
+}
+/* Tab text is an SVG used as a mask, so it can be tinted white/orange. */
+.tabText {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 32px;
+  background-color: #fff;
+  mask: no-repeat center / auto 100%;
+  transition: background-color 0.3s ease;
+}
+.tab::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  aspect-ratio: 4.4 / 1;
+  background: url(/wegame/feature-item-lights.png) bottom / 100% 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.tab[aria-selected="true"] .tabText {
+  background-color: #ff8f00;
+}
+.tab[aria-selected="true"]::before {
+  opacity: 1;
+}
+
+/* ---------- Desktop composition ---------- */
+@media (min-width: 1024px) {
+  .feature {
+    height: calc(10.4 * var(--u));
+  }
+
+  .guideTitle {
+    width: calc(12 * var(--u));
+  }
+  .guideTitle:first-of-type {
+    top: calc(50% - 2.5 * var(--u));
+    left: calc(50% - 7.5 * var(--u));
+  }
+  .guideTitle:last-of-type {
+    right: calc(50% - 7.5 * var(--u));
+    bottom: calc(50% - 2.5 * var(--u));
+  }
+
+  .role {
+    z-index: 3;
+    right: auto;
+    bottom: auto;
+    width: calc(11.66 * var(--u));
+    height: calc(10 * var(--u));
+    aspect-ratio: auto;
+    opacity: 1;
+  }
+  .center {
+    inset: auto;
+    gap: 0;
+  }
+  .subtitle,
+  .title {
+    width: calc(12 * var(--u));
+    height: calc(1.2 * var(--u));
+    object-fit: contain;
+    object-position: left;
+  }
+  .title {
+    margin-top: calc(-0.5 * var(--u));
+  }
+  .inner {
+    margin-top: 0;
+  }
+
+  .val .role {
+    right: calc(50% - 10 * var(--u));
+    top: calc(50% - 5 * var(--u));
+  }
+  .val .center {
+    left: calc(50% - 8 * var(--u));
+    top: calc(50% - 4 * var(--u));
+    width: calc(9 * var(--u));
+    height: calc(7 * var(--u));
+  }
+  .val .inner {
+    width: calc(8.94 * var(--u));
+  }
+
+  .lol .role {
+    left: calc(50% - 9 * var(--u));
+    top: calc(50% - 4.5 * var(--u));
+    width: calc(15.24 * var(--u));
+    height: calc(10.45 * var(--u));
+  }
+  .lol .center {
+    right: calc(50% - 7.2 * var(--u));
+    bottom: 0;
+    z-index: 11;
+    width: calc(5 * var(--u));
+    height: calc(9 * var(--u));
+    overflow: hidden;
+  }
+  .lol .inner {
+    width: calc(4.9 * var(--u));
+    margin-top: calc(0.4 * var(--u));
+  }
+
+  .ai .center {
+    right: calc(50% - 7.2 * var(--u));
+    top: calc(50% - 3.3 * var(--u));
+    width: calc(3 * var(--u));
+    height: calc(5.68 * var(--u));
+  }
+  .ai .title {
+    height: calc(1.6 * var(--u));
+    margin-top: calc(-0.3 * var(--u));
+  }
+  .aiPoints {
+    flex-direction: column;
+    gap: calc(0.3 * var(--u));
+    margin-top: calc(1.3 * var(--u));
+  }
+  .aiPoints img {
+    width: calc(2.32 * var(--u));
+  }
+
+  /* The AI review panel: header tag, panel, typed-out text, bobbing avatar. */
+  .aiPanel {
+    display: block;
+    position: absolute;
+    left: calc(50% - 7 * var(--u));
+    bottom: calc(0.8 * var(--u));
+    width: calc(8.5 * var(--u));
+    height: calc(7.12 * var(--u));
+  }
+  .aiPanelHead {
+    position: absolute;
+    left: calc(-0.7 * var(--u));
+    top: calc(-0.45 * var(--u));
+    z-index: 2;
+    width: calc(2.75 * var(--u));
+    height: calc(1 * var(--u));
+    background: url(/wegame/feature-inner-4-hd.png) 0 / cover;
+  }
+  .aiPanelBody {
+    position: absolute;
+    inset: 0;
+    padding-top: calc(1.3 * var(--u));
+    background: url(/wegame/feature-inner-4-bd.png) center / cover;
+  }
+  .aiPanelText {
+    width: calc(7.72 * var(--u));
+    height: calc(4.96 * var(--u));
+    margin-inline: auto;
+    background: url(/wegame/feature-inner-4-bd-text.png) 0 0 / calc(7.72 * var(--u)) calc(7.96 * var(--u));
+  }
+  .aiRole {
+    position: absolute;
+    right: calc(-0.5 * var(--u));
+    top: calc(-2.5 * var(--u));
+    z-index: 2;
+    width: calc(3.5 * var(--u));
+    height: calc(5 * var(--u));
+  }
+  .aiRole::before,
+  .aiRole::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: center / 100% 100%;
+  }
+  .aiRole::before {
+    background-image: url(/wegame/feature-ai-avatar.png);
+    animation: bob 12s linear infinite;
+  }
+  .aiRole::after {
+    z-index: 2;
+    background-image: url(/wegame/feature-ai-lights.png);
+    animation: flicker 6s linear infinite;
+  }
+
+  /* Tab bar: 140 design px, hidden below the screen during the intro. */
+  .nav {
+    height: calc(1.4 * var(--u));
+    padding-inline: calc(0.8 * var(--u));
+    transform: translateY(100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.15s ease-in-out;
+  }
+  .nav[data-show="true"] {
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+  }
+  .tabText {
+    width: calc(1.8 * var(--u));
+    height: calc(0.62 * var(--u));
+  }
+
+  /* ----- Entrances (a slide is mounted when it becomes current) ----- */
+  .guide .guideTitle:first-of-type {
+    animation: from-left-half 0.6s 0.1s var(--bounce) both;
+  }
+  .guide .guideTitle:last-of-type {
+    animation: from-right-half 0.6s 0.1s var(--bounce) both;
+  }
+  .guide .arrowsFront span {
+    animation: arrow-from-left 0.7s var(--bounce) both;
+  }
+  .guide .arrowsBack span {
+    animation: arrow-from-right 0.7s var(--bounce) both;
+  }
+  .guide .wedge {
+    animation: wedge-open 0.6s 0.1s var(--bounce) both;
+  }
+  /* Intro leaving: titles fade, the wedge slides away to the left. */
+  .guide[data-leaving="true"] .guideTitle,
+  .guide[data-leaving="true"] .arrowsFront,
+  .guide[data-leaving="true"] .arrowsBack {
+    animation: fade-out 0.3s ease both;
+  }
+  .guide[data-leaving="true"] .wedge {
+    animation: slide-away 0.3s ease both;
+  }
+
+  .game .bgImage {
+    animation: fade-in 0.3s ease both;
+  }
+  .val .texture,
+  .val .role {
+    animation: from-right 0.2s 0.1s ease both;
+  }
+  .val .role {
+    animation-duration: 0.3s;
+    animation-delay: 0.2s;
+  }
+  .lol .texture,
+  .lol .role,
+  .ai .texture,
+  .ai .aiPanel {
+    animation: from-left 0.2s 0.1s ease both;
+  }
+  .lol .role,
+  .ai .aiPanel {
+    animation-duration: 0.3s;
+    animation-delay: 0.2s;
+  }
+  .val .subtitle,
+  .lol .subtitle {
+    animation: from-below 0.3s 0.2s ease both;
+  }
+  .val .title,
+  .val .inner,
+  .lol .title,
+  .lol .inner {
+    animation: from-below 0.3s 0.3s ease both;
+  }
+  .ai .center {
+    animation: from-right 0.3s 0.2s ease both;
+  }
+  .ai .aiPanelText {
+    animation: type-out 2s 0.4s linear both;
+  }
+}
+
+.feature {
+  --bounce: cubic-bezier(0.64, 1.15, 0.63, 1.06);
+}
+/* Full-page mode: the page fills the screen (see .page-section). */
+@media (min-width: 1280px) and (min-aspect-ratio: 25/18) and (max-aspect-ratio: 5/2) {
+  .feature {
+    height: auto;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@keyframes from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20%);
+  }
+}
+@keyframes from-right {
+  from {
+    opacity: 0;
+    transform: translateX(20%);
+  }
+}
+@keyframes from-below {
+  from {
+    opacity: 0;
+    transform: translateY(20%);
+  }
+}
+@keyframes from-left-half {
+  from {
+    transform: translateX(-50%);
+  }
+}
+@keyframes from-right-half {
+  from {
+    transform: translateX(50%);
+  }
+}
+@keyframes arrow-from-left {
+  from {
+    left: calc(-20 * var(--u));
+  }
+}
+@keyframes arrow-from-right {
+  from {
+    right: calc(-20 * var(--u));
+  }
+}
+@keyframes wedge-open {
+  from {
+    clip-path: polygon(0 0, 95% 0, 10% 100%, 0 100%);
+  }
+}
+@keyframes slide-away {
+  to {
+    left: -100%;
+    right: 100%;
+  }
+}
+/* The AI review text appears line by line, like it's being typed. */
+@keyframes type-out {
+  0% {
+    clip-path: inset(0 0 100% 0);
+  }
+  25%,
+  35% {
+    clip-path: inset(0 0 calc(100% - 1.5 * var(--u)) 0);
+  }
+  50%,
+  60% {
+    clip-path: inset(0 0 calc(100% - 2.3 * var(--u)) 0);
+  }
+  80%,
+  85% {
+    clip-path: inset(0 0 calc(100% - 4 * var(--u)) 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes bob {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(-5%);
+  }
+  10%,
+  40%,
+  70%,
+  90% {
+    transform: translateY(0);
+  }
+}
+@keyframes flicker {
+  0%,
+  20%,
+  30%,
+  50%,
+  60%,
+  80%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  40%,
+  70% {
+    opacity: 0.5;
+  }
+}

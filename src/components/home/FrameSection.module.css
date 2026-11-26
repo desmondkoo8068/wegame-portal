@@ -1,0 +1,660 @@
+/*
+ * 02 焕新 page: two steps inside one page.
+ *
+ *   step 0 "update": the client window slides up; at 2s the old store
+ *     layout (sidebar, search, page) fades away and the new 3.0 layout
+ *     slides in, while the title changes to "WEGAME 3.0 轻装上阵".
+ *   step 1 "fast": the window tilts back into a glowing 3D floor of code
+ *     and a gameplay video plays on it: "性能升级 轻快畅玩".
+ *
+ * How states are written (same pattern in every home module):
+ *   - outside media queries: the static, final look (phones)
+ *   - @media (min-width: 1024px): the desktop composition; elements start
+ *     in their "before" state and animate when the page becomes active
+ *     ([data-active="true"]). data-step="0" | "1" (full-page mode) or
+ *     "all" (scroll mode, both steps stacked) picks the step.
+ */
+
+/* ---------- Phones: both steps stacked, final look ---------- */
+.frame {
+  padding-block: 56px;
+}
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 16px;
+}
+.heading {
+  display: grid;
+  width: min(85vw, 600px);
+}
+.heading > [aria-hidden="true"] {
+  grid-area: 1 / 1;
+  width: 100%;
+  aspect-ratio: 10 / 1;
+  /* Longhands, not the `background` shorthand: the shorthand would reset the
+     image each title sets below (this selector is more specific). */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+.title {
+  background-image: url(/wegame/section-title-02.svg);
+  display: none;
+}
+.titleMask,
+.titleUpdate {
+  display: none;
+}
+.titleNew {
+  background-image: url(/wegame/section-title-02-1.svg);
+}
+.titleFast {
+  background-image: url(/wegame/section-title-02-2.svg);
+}
+.subtitle {
+  width: min(80vw, 420px);
+  aspect-ratio: 672 / 122;
+  background: url(/wegame/frame-subtitle.png) no-repeat center / contain;
+}
+
+.block {
+  position: relative;
+  width: min(100%, 720px);
+  aspect-ratio: 1402 / 800;
+}
+.window {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: 12px 12px 0 0;
+  background: rgb(255 255 255 / 0.05);
+}
+/* New store layout = empty 3.0 frame + store content shifted left. */
+.window::before,
+.window::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: no-repeat center / contain;
+}
+.update .window::before {
+  z-index: 11;
+  background-image: url(/wegame/frame-main-store-off.png);
+}
+.update .window::after {
+  background-image: url(/wegame/frame-main-store.png);
+  opacity: 0;
+}
+.store {
+  position: absolute;
+  top: 12.2%;
+  left: 20%;
+  z-index: 11;
+  width: 73%;
+  aspect-ratio: 1024 / 861;
+  background: url(/wegame/frame-main-store-block.png) no-repeat center / contain;
+  transform: translateX(-5.6%);
+}
+.search,
+.sidebarKey,
+.sidebarGame,
+.refreshLight,
+.lightbox {
+  display: none;
+}
+
+.fast .window::before {
+  z-index: 20;
+  background-image: url(/wegame/frame-sidebar-off.png);
+}
+.fast .window::after {
+  top: auto;
+  z-index: 20;
+  height: 40%;
+  background: linear-gradient(transparent, #000);
+}
+.video {
+  position: absolute;
+  inset: 1%;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.bg,
+.floorWrap {
+  display: none;
+}
+
+/* ---------- Desktop composition ---------- */
+@media (min-width: 1024px) {
+  .frame {
+    height: auto;
+    padding: 0;
+  }
+  .panel {
+    height: calc(10.4 * var(--u));
+    justify-content: center;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* Orange chevrons behind everything, and a 3D floor in front of them
+     (dark; in the fast step it lights up with code). One set per step. */
+  .bg {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: -1;
+    width: calc(34 * var(--u));
+    aspect-ratio: 3100 / 1851;
+    background: url(/wegame/frame-bg.svg) no-repeat center / contain;
+    transform: translate(-50%, -64%);
+  }
+  .floorWrap {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: -1;
+    width: calc(20 * var(--u));
+    height: 180vh;
+    perspective: 800px;
+    transform: translate(-50%, -50%);
+  }
+  .floor {
+    width: 100%;
+    height: 100%;
+    transform: rotateX(58deg) translateZ(calc(-1.6 * var(--u))) translateY(-40vh);
+  }
+  /* code texture, faded in towards the viewer */
+  .floor::before {
+    content: "";
+    position: absolute;
+    left: 1%;
+    width: 98%;
+    height: 100%;
+    background: url(/wegame/fast-code.png) repeat center / contain;
+    mask: linear-gradient(transparent, #000 70%);
+    opacity: 0;
+  }
+  /* solid dark floor hiding the chevrons below the horizon */
+  .floor::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 1%;
+    z-index: -3;
+    width: 98%;
+    height: 200%;
+    background: var(--color-page);
+  }
+  .lines {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    mask: linear-gradient(transparent 35%, #000);
+    opacity: 0;
+  }
+  .lines::before,
+  .lines::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .lines::before {
+    background: url(/wegame/fast-code-bg.png) no-repeat center / 100% 100%;
+  }
+  .lines::after {
+    background: url(/wegame/fast-code-light.png) no-repeat center / cover;
+  }
+
+  /* Titles: 1200x120 design, 3.4 units above the middle of the screen. */
+  .heading {
+    position: absolute;
+    top: 50%;
+    z-index: 11;
+    width: calc(12 * var(--u));
+    transform: translateY(calc(-3.4 * var(--u)));
+  }
+  .heading > [aria-hidden="true"] {
+    aspect-ratio: auto;
+    height: calc(1.2 * var(--u));
+  }
+  .title {
+    display: block;
+  }
+  .titleMask {
+    display: block;
+    position: relative;
+    align-self: end;
+    height: 0;
+    overflow: hidden;
+  }
+  .titleUpdate {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: calc(1.2 * var(--u));
+    background: url(/wegame/section-title-02-0.svg) no-repeat center / contain;
+  }
+  .titleNew {
+    opacity: 0;
+  }
+  .titleFast {
+    opacity: 0;
+  }
+
+  /* The client window, cut off by the bottom of the screen. */
+  .block {
+    position: absolute;
+    bottom: -4vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(14.02 * var(--u));
+    max-width: 66vw;
+  }
+  .window {
+    border-radius: calc(0.24 * var(--u)) calc(0.24 * var(--u)) 0 0;
+    overflow: visible;
+    z-index: 10;
+  }
+  .update .window {
+    transform: translateY(20%);
+  }
+  .update .window::before {
+    opacity: 0;
+  }
+  .update .window::after {
+    opacity: 1;
+  }
+  .store {
+    transform: none;
+  }
+  .search {
+    display: block;
+    position: absolute;
+    top: 2.6%;
+    left: 24.96%;
+    z-index: 1;
+    width: 28.5%;
+    aspect-ratio: 400 / 36;
+    background: url(/wegame/search.svg) no-repeat center / contain;
+    transform: translate3d(20%, 100%, 0);
+  }
+  .sidebarKey,
+  .sidebarGame {
+    display: block;
+    position: absolute;
+    left: 1.6%;
+    z-index: 1;
+    width: 11.84%;
+    border-radius: calc(0.04 * var(--u));
+    background: rgb(255 255 255 / 0.1) no-repeat center / contain;
+  }
+  .sidebarKey {
+    top: 11.6%;
+    aspect-ratio: 166 / 56;
+    background-image: url(/wegame/sidebar-key.png);
+    transform: translate3d(-40%, 50%, 0);
+  }
+  .sidebarGame {
+    top: 28.4%;
+    aspect-ratio: 166 / 350;
+    background-image: url(/wegame/sidebar-game.png);
+    transform: translate3d(-50%, 60%, 0);
+  }
+  /* A light that sweeps up the window once. */
+  .refreshLight {
+    display: block;
+    position: absolute;
+    top: 0;
+    z-index: 12;
+    width: 100%;
+    aspect-ratio: 1378 / 994;
+    background: url(/wegame/frame-refresh-light.svg) no-repeat center / contain;
+    opacity: 0;
+  }
+  /* Orange horizon glow + code rain above the window. */
+  .lightbox {
+    display: block;
+    position: absolute;
+    top: 0;
+    z-index: -1;
+    width: 142%;
+    aspect-ratio: 2008 / 533;
+    transform: translateY(-67%);
+    pointer-events: none;
+  }
+  .light,
+  .code {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    aspect-ratio: 2008 / 533;
+    background: no-repeat center / contain;
+    opacity: 0;
+  }
+  .light {
+    left: 1.5%;
+    background-image: url(/wegame/frame-light.png);
+  }
+  .code {
+    z-index: -1;
+    background-image: url(/wegame/frame-code.png);
+  }
+
+  /* Fast step: hidden until its step plays. */
+  .fast .block {
+    opacity: 0;
+    perspective: 800px;
+    transform-style: preserve-3d;
+  }
+  .fast .window {
+    overflow: hidden;
+  }
+  .fast .light,
+  .fast .code {
+    opacity: 1;
+  }
+  .fast .subtitle {
+    position: absolute;
+    top: -3vh;
+    width: calc(6.72 * var(--u));
+    opacity: 0;
+  }
+  .video {
+    inset: calc(0.14 * var(--u));
+    border-radius: calc(0.12 * var(--u));
+  }
+
+  /* ----- Step 0 "update" animations ----- */
+  .frame[data-active="true"] .update .window {
+    animation: slide-up 1s 0.4s ease-in-out forwards;
+  }
+  .frame[data-active="true"] .search {
+    animation:
+      search-in 1s 0.4s ease-in-out forwards,
+      fade-out-late 0.5s 2s ease-in-out forwards;
+  }
+  .frame[data-active="true"] .sidebarKey {
+    animation:
+      to-place 1s 0.4s ease-in-out forwards,
+      fade-out-late 0.5s 2s ease-in-out forwards;
+  }
+  .frame[data-active="true"] .sidebarGame {
+    animation:
+      game-in 1s 0.4s ease-in-out forwards,
+      fade-out-late 0.5s 2s ease-in-out forwards;
+  }
+  .frame[data-active="true"] .update .window::after {
+    animation: fade-out-late 0.5s 2s ease-in-out forwards;
+  }
+  .frame[data-active="true"] .update .window::before {
+    animation: fade-in-late 0.5s 2s ease-in-out forwards;
+  }
+  .frame[data-active="true"] .store {
+    animation: store-shift 0.5s 2s ease-in-out forwards;
+  }
+  .frame[data-active="true"] .refreshLight {
+    animation: refresh-in 1s 0.4s ease-out forwards;
+  }
+  .frame[data-active="true"] .update .light {
+    animation: light-in 1s 0.4s ease-out forwards;
+  }
+  .frame[data-active="true"] .update .code {
+    animation: code-in 1s 0.4s ease-out forwards;
+  }
+  /* "WEGAME 3.0" grows in under the old title, then both give way. */
+  .frame[data-active="true"] .title {
+    animation: title-out 0.4s 2s linear forwards;
+  }
+  .frame[data-active="true"] .titleMask {
+    animation:
+      title-grow 0.4s 0.8s linear forwards,
+      title-out 0.4s 2s linear forwards;
+  }
+  .frame[data-active="true"] .titleNew {
+    animation: title-new-in 0.4s 2s linear forwards;
+  }
+
+  /* ----- Step 1 "fast" (also plays in scroll mode, data-step="all") ----- */
+  .frame[data-active="true"]:not([data-step="0"]) .fast .block {
+    opacity: 1;
+  }
+  .frame[data-active="true"]:not([data-step="0"]) .titleFast {
+    animation: fade-in 0.3s linear forwards;
+  }
+  .frame[data-active="true"]:not([data-step="0"]) .fast .subtitle {
+    animation: fade-in 0.6s 0.4s ease-out forwards;
+  }
+  .frame[data-active="true"]:not([data-step="0"]) .fast .window {
+    animation: tilt-back 0.25s 0.3s ease-in-out forwards;
+  }
+  .frame[data-active="true"]:not([data-step="0"]) .fast .lightbox {
+    animation: fade-out-now 0.2s 0.3s ease-out forwards;
+  }
+  .frame[data-active="true"]:not([data-step="0"]) .fast .floor::before,
+  .frame[data-active="true"]:not([data-step="0"]) .lines {
+    animation: fade-in 0.3s 0.4s linear forwards;
+  }
+  .frame[data-active="true"]:not([data-step="0"]) .lines::before {
+    animation: line-pulse 1s 0.4s ease-out infinite;
+  }
+  .frame[data-active="true"]:not([data-step="0"]) .lines::after {
+    animation: light-rise 1s 0.4s ease-out infinite;
+  }
+}
+
+/* Smaller desktop screens: a steeper floor and tilt fit better. */
+@media (min-width: 1024px) and (max-width: 1600px) and (max-height: 1000px) {
+  .floor {
+    transform: rotateX(64deg) translateZ(calc(-1.6 * var(--u))) translateY(-40vh);
+  }
+  .fast {
+    --tilt: rotateX(50deg) translateZ(-4vw) scale(1.04);
+  }
+}
+@media (min-width: 1024px) and (min-aspect-ratio: 2/1) {
+  .fast .subtitle {
+    top: 4vh;
+  }
+  .fast {
+    --tilt: rotateX(50deg) translateZ(-4vw) scale(0.96);
+  }
+}
+
+/* ---------- Full-page mode: the two steps share one screen ---------- */
+@media (min-width: 1280px) and (min-aspect-ratio: 25/18) and (max-aspect-ratio: 5/2) {
+  .frame {
+    height: auto;
+  }
+  .panel {
+    position: absolute;
+    inset: 0;
+    height: auto;
+  }
+  .frame[data-step="1"] .update .block,
+  .frame[data-step="1"] .update .heading {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fade-out-now {
+  0% {
+    opacity: 1;
+  }
+  1%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes slide-up {
+  0% {
+    transform: translateY(20%);
+  }
+  90%,
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes to-place {
+  to {
+    transform: none;
+  }
+}
+@keyframes search-in {
+  to {
+    transform: none;
+  }
+}
+@keyframes game-in {
+  to {
+    transform: none;
+    background-color: transparent;
+  }
+}
+@keyframes code-in {
+  0%,
+  64% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  74%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes light-in {
+  0%,
+  34% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  64%,
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+@keyframes refresh-in {
+  0% {
+    opacity: 0;
+    transform: translateY(100vh);
+  }
+  58% {
+    opacity: 1;
+    transform: translateY(100vh);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+@keyframes title-grow {
+  0%,
+  66% {
+    height: 0;
+  }
+  100% {
+    height: calc(1.2 * var(--u));
+  }
+}
+@keyframes title-out {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  80%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes title-new-in {
+  0%,
+  40% {
+    opacity: 0;
+    transform: translateY(calc(0.6 * var(--u)));
+  }
+  90%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fade-in-late {
+  0%,
+  20% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fade-out-late {
+  0% {
+    opacity: 1;
+  }
+  75%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes store-shift {
+  0%,
+  20% {
+    transform: translateX(0);
+  }
+  80%,
+  100% {
+    transform: translateX(-5.6%);
+  }
+}
+@keyframes tilt-back {
+  from {
+    transform: none;
+  }
+  to {
+    transform: var(--tilt, rotateX(44deg) translateZ(-2vw) scale(0.94) scaleY(1.02));
+  }
+}
+@keyframes line-pulse {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  30%,
+  60% {
+    opacity: 1;
+  }
+}
+@keyframes light-rise {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}

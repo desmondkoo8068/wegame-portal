@@ -1,14 +1,23 @@
 @import "tailwindcss";
 
 /*
+ * `fp:` variant = the home page's full-page (slideshow) mode: a wide,
+ * landscape window. Same rule as FULL_PAGE_QUERY in PageFlow.tsx.
+ */
+@custom-variant fp (@media (min-width: 1280px) and (min-aspect-ratio: 25/18) and (max-aspect-ratio: 5/2));
+
+/*
  * CSS architecture
  * ----------------
  * 1. Design tokens (@theme): every colour/font is defined once here.
  *    Tailwind v4 turns each `--color-*` token into utilities automatically,
  *    e.g. --color-brand -> bg-brand, text-brand, border-brand.
- * 2. Base styles (@layer base): element defaults, page scroll-snapping.
+ * 2. Base styles (@layer base): element defaults.
  * 3. Components (@layer components): reusable classes for patterns used in
- *    many places (buttons, dropdowns, the scaled "stage", reveal animation).
+ *    many places (buttons, dropdowns, ranking board).
+ * 4. Home page flow: the full-screen slideshow layout of the home page.
+ *    Each home section's own layout and animations live next to it in a
+ *    CSS Module (src/components/home/*.module.css).
  * Everything else is written as Tailwind utilities directly in the JSX.
  *
  * Colours are sampled from the live wegame.com.cn site.
@@ -28,6 +37,8 @@
   --font-sans:
     system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Roboto,
     sans-serif;
+  /* Digits font of the live site, used by the 01–05 side nav. */
+  --font-num: "mfgeheinumber", var(--font-sans);
 
   --animate-float: float 6s ease-in-out infinite;
   --animate-marquee: marquee 40s linear infinite;
@@ -83,6 +94,18 @@
     transform: scaleX(1);
   }
 }
+/* Used as animate-[fade-in_0.4s_ease] when an image is swapped in. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@font-face {
+  font-family: "mfgeheinumber";
+  src: url("/fonts/mfgeheinumber.ttf") format("truetype");
+  font-display: swap;
+}
 
 /* ---------- 2. Base ---------- */
 @layer base {
@@ -93,22 +116,6 @@
   @media (min-width: 1024px) {
     :root {
       --header-h: 5rem;
-      /*
-       * One "design pixel": the live site is designed on a 1440x900 canvas.
-       * calc(N * var(--dp)) scales a design size to the current viewport,
-       * whichever of width or height is tighter.
-       */
-      --dp: min(100vw / 1440, max(100svh, 640px) / 900);
-      /* Distance from a page's top edge to the top of its centred stage. */
-      --stage-top: calc(max(50svh, 320px) - 450 * var(--dp));
-    }
-    /*
-     * Desktop "page by page" scrolling, like the real site: each full-screen
-     * section snaps into place. Done with native CSS scroll-snap instead of
-     * hijacking the mouse wheel, so keyboard, trackpad and scrollbar all work.
-     */
-    html {
-      scroll-snap-type: y mandatory;
     }
   }
 
@@ -150,50 +157,6 @@
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
-  /*
-   * A full-screen "page" of the home portal.
-   * Mobile: normal stacked block. Desktop: fills the viewport and is a
-   * scroll-snap target.
-   */
-  .page-section {
-    @apply relative overflow-hidden lg:h-svh lg:min-h-[640px] lg:snap-start;
-  }
-
-  /*
-   * The stage: a 1440x900 "design canvas" scaled to fit the viewport, so
-   * desktop artwork keeps the exact composition of the real site on any
-   * screen size. --dp (one design pixel) is defined on :root above.
-   * Children are positioned in % of the stage via <StageItem>.
-   */
-  .stage {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: calc(1440 * var(--dp));
-    height: calc(900 * var(--dp));
-    transform: translate(-50%, -50%);
-  }
-
-  /*
-   * Entrance animation. On desktop, elements with .reveal fade/slide in when
-   * their section becomes the active page (data-active="true"). Stagger with
-   * style={{ "--delay": "200ms" }}. On mobile everything is simply visible.
-   */
-  @media (min-width: 1024px) {
-    .reveal {
-      opacity: 0;
-      translate: 0 32px;
-      transition:
-        opacity 0.8s ease,
-        translate 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-      transition-delay: var(--delay, 0ms);
-    }
-    [data-active="true"] .reveal {
-      opacity: 1;
-      translate: 0 0;
-    }
-  }
-
   /* Desktop nav link; aria-current="page" marks the active page. */
   .nav-link {
     @apply relative flex h-full items-center text-[15px] font-bold text-white/80 transition-colors hover:text-white;
@@ -233,6 +196,50 @@
     @apply flex items-center gap-2 rounded-md px-3 py-2 text-sm text-white/90 transition-colors hover:bg-white/5 hover:text-white;
   }
 
+  /*
+   * Store 排行榜: four ranking panels placed with named grid areas, so the
+   * layout per breakpoint reads like a picture of the result:
+   *   mobile: one column (source order)
+   *   tablet: hot | top        desktop: hot | reserve | top
+   *           reserve | sales           hot | sales   | top
+   * Panels opt in with data-area="hot" etc. Areas are only assigned inside
+   * the media queries: a named area with no template would misplace items.
+   */
+  .ranking-board {
+    @apply grid gap-5;
+    /* minmax(0, …) lets columns shrink below their content's width, so long
+       (truncated) game names can't stretch the page on mobile. */
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 768px) {
+    .ranking-board {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas:
+        "hot top"
+        "reserve sales";
+    }
+    .ranking-board > [data-area="hot"] {
+      grid-area: hot;
+    }
+    .ranking-board > [data-area="top"] {
+      grid-area: top;
+    }
+    .ranking-board > [data-area="reserve"] {
+      grid-area: reserve;
+    }
+    .ranking-board > [data-area="sales"] {
+      grid-area: sales;
+    }
+  }
+  @media (min-width: 1024px) {
+    .ranking-board {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-areas:
+        "hot reserve top"
+        "hot sales top";
+    }
+  }
+
   /* Loading placeholder block with a gentle pulse. */
   .skeleton {
     @apply animate-pulse rounded-md bg-raised;
@@ -243,5 +250,108 @@
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* ---------- 4. Home page flow ---------- */
+@layer components {
+  /*
+   * --u: one unit of the live site's design grid. The live page is drawn on
+   * a 1920px wide canvas, so 1 --u = 100 design px, scaled to the window:
+   * calc(2.6 * var(--u)) is a 260px design size. Every home section module
+   * uses it, so the whole composition scales together.
+   */
+  :root {
+    --u: calc(100vw / 19.2);
+  }
+  /* Very wide screens: draw a bit smaller so everything still fits in height. */
+  @media (min-width: 1600px) and (min-aspect-ratio: 2/1) {
+    :root {
+      --u: calc(100vw / 23);
+    }
+  }
+
+  .page-section {
+    position: relative;
+    /* Own stacking context: background layers with a negative z-index stay
+       inside the section instead of slipping behind it. */
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--color-page);
+  }
+  /* Desktop in scroll mode: each section is one 1920x1040 design "screen". */
+  @media (min-width: 1024px) {
+    .page-section {
+      height: calc(10.4 * var(--u));
+    }
+  }
+
+  /*
+   * Full-page mode (see PageFlow.tsx). Nothing scrolls: the sections are
+   * stacked like slides in one fixed screen, and the active one cross-fades
+   * in over 0.5s, exactly like the live site.
+   */
+  @variant fp {
+    html:has(.home-flow) {
+      overflow: hidden;
+    }
+    .home-flow {
+      position: fixed;
+      inset: 0;
+      z-index: 0; /* own stacking context, below the sticky header */
+    }
+    .page-section {
+      position: absolute;
+      inset: 0;
+      height: auto;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .page-section[data-active="true"] {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    /* Last page: the WEGAME MORE banner fills the space above the footer. */
+    .page-section[data-page="more"] {
+      bottom: var(--footer-h, 338px);
+    }
+    /* The site footer is pinned to the bottom and only shown on that page.
+       visibility (delayed on hide) keeps hidden links out of the Tab order. */
+    html:has(.home-flow) .site-footer {
+      position: fixed;
+      inset-inline: 0;
+      bottom: 0;
+      z-index: 10;
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 0.5s ease-in-out,
+        visibility 0s 0.5s;
+    }
+    html:has(.page-section[data-page="more"][data-active="true"]) .site-footer {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    /* The two thin vertical guide lines framing the live design. */
+    .home-flow::before,
+    .home-flow::after {
+      content: "";
+      position: absolute;
+      top: var(--header-h);
+      bottom: 0;
+      z-index: 20;
+      width: 1px;
+      background: rgb(255 255 255 / 0.1);
+      pointer-events: none;
+    }
+    .home-flow::before {
+      left: calc(0.8 * var(--u));
+    }
+    .home-flow::after {
+      right: calc(0.8 * var(--u));
+    }
   }
 }

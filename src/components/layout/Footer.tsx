@@ -26,8 +26,10 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-page text-sm lg:snap-end">
-      <div className="container-page grid grid-cols-2 gap-8 py-10 sm:grid-cols-[repeat(3,auto)_1fr] sm:gap-12 lg:max-w-none lg:px-[calc(86*var(--dp))]">
+    // .site-footer: the home page pins this to the bottom of its last slide
+    // (see "Home page flow" in globals.css).
+    <footer className="site-footer bg-page text-sm">
+      <div className="container-page grid grid-cols-2 gap-8 py-10 sm:grid-cols-[repeat(3,auto)_1fr] sm:gap-12 lg:max-w-none lg:px-[4.5vw]">
         <FooterColumn title="下载客户端">
           {footerDownloads.map((link) => (
             <li key={link.label}>
@@ -101,7 +103,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-line">
-        <div className="container-page flex flex-col gap-2 py-5 text-xs text-white/40 lg:max-w-none lg:px-[calc(86*var(--dp))]">
+        <div className="container-page flex flex-col gap-2 py-5 text-xs text-white/40 lg:max-w-none lg:px-[4.5vw]">
           <nav aria-label="法律信息">
             <ul className="flex flex-wrap gap-y-1">
               {legalLinks.map((link) => (

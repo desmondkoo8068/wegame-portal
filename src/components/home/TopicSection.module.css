@@ -1,0 +1,272 @@
+/*
+ * 01 大作 page.
+ *
+ * Desktop: 16 posters start small near the centre and fly outwards towards
+ * the corners while growing and fading (one 18s loop each, started 1.125s
+ * apart), so the wall keeps "flying past" the title. Delays are negative so
+ * the wall is already full when you arrive, and the loop is paused while
+ * the page isn't on screen.
+ * Mobile: two rows of posters scrolling sideways.
+ */
+.topic {
+  padding-block: 64px;
+}
+
+/* Orange chevron shapes in both top corners (one mirrored). */
+.bg::before,
+.bg::after {
+  content: "";
+  position: absolute;
+  top: calc(-4.65 * var(--u));
+  width: calc(11.64 * var(--u));
+  height: calc(18.84 * var(--u));
+  background: url(/wegame/topic-bg.svg) no-repeat center / contain;
+  pointer-events: none;
+}
+.bg::before {
+  left: calc(-0.92 * var(--u));
+}
+.bg::after {
+  right: calc(-0.92 * var(--u));
+  transform: scaleX(-1);
+}
+
+.main {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-inline: 16px;
+}
+.title,
+.subtitle {
+  width: min(80vw, 600px);
+}
+.title img,
+.subtitle {
+  width: 100%;
+  height: auto;
+}
+
+/* ---------- The keyword ticker in the middle ---------- */
+.ticker {
+  position: relative;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 240px;
+  aspect-ratio: 350 / 88;
+  margin-top: 16px;
+  overflow: hidden;
+  border: max(calc(0.04 * var(--u)), 1px) solid #ff8f00;
+  border-radius: 999px;
+  background: rgb(7 8 9 / 0.8);
+}
+.key {
+  position: absolute;
+  width: 78%;
+  aspect-ratio: 272 / 60;
+  opacity: 0;
+  animation: key-cycle 4.8s ease-in-out infinite;
+}
+.key:nth-child(2) {
+  animation-delay: 1.6s;
+}
+.key:nth-child(3) {
+  animation-delay: 3.2s;
+}
+
+/* ---------- Desktop poster wall ---------- */
+.posters {
+  display: none;
+}
+
+/* ---------- Mobile marquee ---------- */
+.marquee {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100vw;
+}
+
+@media (min-width: 1024px) {
+  .topic {
+    padding: 0;
+  }
+  .main {
+    height: 100%;
+    justify-content: center;
+    padding: 0;
+  }
+  .title,
+  .subtitle {
+    position: absolute;
+    left: 50%;
+    z-index: 11;
+    width: calc(12 * var(--u));
+    translate: -50% 0;
+  }
+  .title {
+    top: calc(1.84 * var(--u));
+  }
+  .subtitle {
+    top: calc(3.16 * var(--u));
+  }
+  .ticker {
+    width: calc(3.5 * var(--u));
+    margin: 0;
+  }
+  .marquee {
+    display: none;
+  }
+
+  .posters {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100vw;
+    aspect-ratio: 1920 / 1080;
+    transform: translate(-50%, calc(-50% - 2vh));
+  }
+  .poster {
+    position: absolute;
+    aspect-ratio: 380 / 500;
+    opacity: 0;
+    /* Longhands: the name is set per slot below. */
+    animation-duration: 18s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-play-state: paused;
+  }
+  [data-active="true"] .poster {
+    animation-play-state: running;
+  }
+  /* Hovering a poster holds it still so its price can be read. */
+  [data-active="true"] .poster:hover {
+    animation-play-state: paused;
+  }
+
+  /*
+   * Slot n: start position, size, flight path and start time.
+   * delay = (n−1) × 1.125s − 12s (negative = already part-way through its loop,
+   so the wall is populated when you arrive).
+   */
+  .poster:nth-child(1) { width: calc(2 * var(--u)); top: calc(2.6 * var(--u)); left: calc(6 * var(--u)); animation-name: fly-left-top; animation-delay: -12s; }
+  .poster:nth-child(2) { width: calc(1.8 * var(--u)); top: calc(1.69 * var(--u)); right: calc(6.8 * var(--u)); animation-name: fly-right-top; animation-delay: -10.875s; }
+  .poster:nth-child(3) { width: calc(1.8 * var(--u)); bottom: calc(2.6 * var(--u)); left: calc(6.6 * var(--u)); animation-name: fly-left-bottom; animation-delay: -9.75s; }
+  .poster:nth-child(4) { width: calc(1.76 * var(--u)); bottom: calc(3.4 * var(--u)); right: calc(8 * var(--u)); animation-name: fly-right-bottom-far; animation-delay: -8.625s; }
+  .poster:nth-child(5) { width: calc(1.62 * var(--u)); top: calc(3.4 * var(--u)); left: calc(6 * var(--u)); animation-name: fly-left-top; animation-delay: -7.5s; }
+  .poster:nth-child(6) { width: calc(1.82 * var(--u)); top: calc(2.95 * var(--u)); right: calc(7.6 * var(--u)); animation-name: fly-right-top; animation-delay: -6.375s; }
+  .poster:nth-child(7) { width: calc(2.28 * var(--u)); bottom: calc(2.16 * var(--u)); left: calc(7 * var(--u)); animation-name: fly-left-bottom; animation-delay: -5.25s; }
+  .poster:nth-child(8) { width: calc(1.6 * var(--u)); top: calc(2.16 * var(--u)); left: calc(7.8 * var(--u)); animation-name: fly-left-top-high; animation-delay: -4.125s; }
+  .poster:nth-child(9) { width: calc(2.43 * var(--u)); bottom: calc(3 * var(--u)); right: calc(7 * var(--u)); animation-name: fly-right-bottom; animation-delay: -3s; }
+  .poster:nth-child(10) { width: calc(2 * var(--u)); bottom: calc(2.97 * var(--u)); left: calc(6.8 * var(--u)); animation-name: fly-left-bottom; animation-delay: -1.875s; }
+  .poster:nth-child(11) { width: calc(1.8 * var(--u)); top: calc(2.4 * var(--u)); right: calc(6 * var(--u)); animation-name: fly-right-top; animation-delay: -0.75s; }
+  .poster:nth-child(12) { width: calc(1.6 * var(--u)); top: calc(1.97 * var(--u)); left: calc(6.2 * var(--u)); animation-name: fly-left-top; animation-delay: 0.375s; }
+  .poster:nth-child(13) { width: calc(2.2 * var(--u)); bottom: calc(3 * var(--u)); left: calc(6.8 * var(--u)); animation-name: fly-left-bottom; animation-delay: 1.5s; }
+  .poster:nth-child(14) { width: calc(1.84 * var(--u)); bottom: calc(3.6 * var(--u)); right: calc(6.4 * var(--u)); animation-name: fly-right-bottom; animation-delay: 2.625s; }
+  .poster:nth-child(15) { width: calc(2.2 * var(--u)); top: calc(2 * var(--u)); right: calc(6 * var(--u)); animation-name: fly-right-top-far; animation-delay: 3.75s; }
+  .poster:nth-child(16) { width: calc(1.6 * var(--u)); bottom: calc(2 * var(--u)); right: calc(8 * var(--u)); animation-name: fly-right-bottom-far; animation-delay: 4.875s; }
+}
+
+/* Very wide screens: titles a little higher, posters spread a bit more. */
+@media (min-width: 1024px) and (min-aspect-ratio: 2/1) {
+  .title,
+  .subtitle {
+    translate: -50% -4vh;
+  }
+  .subtitle {
+    top: calc(3 * var(--u));
+  }
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.price {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 24px 8px 8px;
+  text-align: center;
+  font-size: 12px;
+  background: linear-gradient(to top, rgb(0 0 0 / 0.9), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.poster:hover .price {
+  opacity: 1;
+}
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--color-raised);
+}
+
+@keyframes key-cycle {
+  0% {
+    opacity: 0;
+    transform: translateY(110%);
+  }
+  4%,
+  33% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  37%,
+  100% {
+    opacity: 0;
+    transform: translateY(-110%);
+  }
+}
+
+/* Flight paths: start at 80% size, end far out at 2.3–3× and faded out. */
+@keyframes fly-left-top {
+  0% { opacity: 0; transform: scale(0.8); }
+  10% { opacity: 1; }
+  58% { opacity: 0.2; transform: translate3d(calc(-12 * var(--u)), calc(-2 * var(--u)), 0) scale(2.3); }
+  100% { opacity: 0; transform: translate3d(calc(-12 * var(--u)), calc(-2 * var(--u)), 0) scale(2.3); }
+}
+@keyframes fly-left-top-high {
+  0% { opacity: 0; transform: scale(0.8); }
+  10% { opacity: 1; }
+  58% { opacity: 0.2; transform: translate3d(calc(-12 * var(--u)), calc(-4 * var(--u)), 0) scale(2.3); }
+  100% { opacity: 0; transform: translate3d(calc(-12 * var(--u)), calc(-4 * var(--u)), 0) scale(2.3); }
+}
+@keyframes fly-right-top {
+  0% { opacity: 0; transform: scale(0.8); }
+  10% { opacity: 1; }
+  58% { opacity: 0.2; transform: translate3d(calc(12 * var(--u)), calc(-3 * var(--u)), 0) scale(2.3); }
+  100% { opacity: 0; transform: translate3d(calc(12 * var(--u)), calc(-3 * var(--u)), 0) scale(2.3); }
+}
+@keyframes fly-right-top-far {
+  0% { opacity: 0; transform: scale(0.8); }
+  10% { opacity: 1; }
+  58% { opacity: 0.2; transform: translate3d(calc(14 * var(--u)), calc(-4 * var(--u)), 0) scale(3); }
+  100% { opacity: 0; transform: translate3d(calc(14 * var(--u)), calc(-4 * var(--u)), 0) scale(3); }
+}
+@keyframes fly-left-bottom {
+  0% { opacity: 0; transform: scale(0.8); }
+  10% { opacity: 1; }
+  58% { opacity: 0.2; transform: translate3d(calc(-12 * var(--u)), calc(8 * var(--u)), 0) scale(2.3); }
+  100% { opacity: 0; transform: translate3d(calc(-12 * var(--u)), calc(8 * var(--u)), 0) scale(2.3); }
+}
+@keyframes fly-right-bottom {
+  0% { opacity: 0; transform: scale(0.8); }
+  10% { opacity: 1; }
+  58% { opacity: 0.4; transform: translate3d(calc(12 * var(--u)), calc(6 * var(--u)), 0) scale(2.3); }
+  100% { opacity: 0; transform: translate3d(calc(12 * var(--u)), calc(6 * var(--u)), 0) scale(2.3); }
+}
+@keyframes fly-right-bottom-far {
+  0% { opacity: 0; transform: scale(0.8); }
+  10% { opacity: 1; }
+  80% { opacity: 0.4; transform: translate3d(calc(8 * var(--u)), calc(12 * var(--u)), 0) scale(3); }
+  100% { opacity: 0; transform: translate3d(calc(8 * var(--u)), calc(12 * var(--u)), 0) scale(3); }
+}

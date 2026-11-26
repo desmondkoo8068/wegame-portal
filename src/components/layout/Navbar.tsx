@@ -12,6 +12,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { isActivePath } from "@/lib/nav";
 import { CloseIcon, MenuIcon, SearchIcon, UserIcon, iconsByName } from "@/components/ui/Icons";
 import { mainNav, searchPlaceholder, utilityLinks } from "@/data/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -54,7 +55,7 @@ export default function Navbar() {
                   ) : (
                     <Link
                       href={item.href ?? "#"}
-                      aria-current={pathname === item.href ? "page" : undefined}
+                      aria-current={isActivePath(pathname, item.href ?? "#") ? "page" : undefined}
                       className="nav-link"
                     >
                       {item.label}

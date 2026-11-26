@@ -15,6 +15,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { isActivePath } from "@/lib/nav";
 import { downloadOptions, mainNav, utilityLinks } from "@/data/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { closeMobileMenu } from "@/store/slices/uiSlice";
@@ -95,7 +96,7 @@ export default function MobileMenu() {
                 <Link
                   href={item.href ?? "#"}
                   onClick={close}
-                  aria-current={pathname === item.href ? "page" : undefined}
+                  aria-current={isActivePath(pathname, item.href ?? "#") ? "page" : undefined}
                   className="block py-4 text-lg font-bold text-white aria-[current=page]:text-brand"
                 >
                   {item.label}

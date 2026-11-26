@@ -13,7 +13,8 @@
  *                         change for a given URL, so reuse them forever.
  *   Images, fonts, icons  stale-while-revalidate: show the cached copy
  *                         instantly and refresh it in the background.
- *   /api/games            network first with cache fallback (offline games).
+ *   /api/* (JSON data)    network first with cache fallback, so the game
+ *                         wall and store content work offline.
  *   First-visit files     the page sends the list of files it already loaded
  *                         (see ServiceWorkerRegister), because the worker
  *                         isn't in control yet while a first visit loads.
@@ -22,7 +23,7 @@
  *
  * Bump VERSION to invalidate every cache on the next deploy.
  */
-const VERSION = "v1";
+const VERSION = "v2";
 const PRECACHE = `wegame-precache-${VERSION}`;
 const RUNTIME = `wegame-runtime-${VERSION}`;
 
@@ -80,7 +81,7 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(navigationStrategy(request));
   } else if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(cacheFirst(request));
-  } else if (url.pathname === "/api/games") {
+  } else if (url.pathname.startsWith("/api/")) {
     event.respondWith(networkFirst(request));
   } else if (/\.(png|jpe?g|svg|avif|webp|gif|ico|woff2?)$/i.test(url.pathname)) {
     event.respondWith(staleWhileRevalidate(request));

@@ -1,0 +1,214 @@
+/*
+ * KV (hero) page. Sizes use --u (1 --u = 100px of the 1920px design).
+ *
+ * Intro, played once when the page loads (like the live site):
+ *   0–0.9s   the old slogan "一起更好玩" is shown
+ *   0.9–1.1s it fades out while "轻装上阵 3.0" fades in, and the dark
+ *            "lightbox" (tint + orange light + digital code) drops down from
+ *            above the screen.
+ */
+.kv {
+  /* In scroll mode, slide up under the sticky header. */
+  margin-top: calc(-1 * var(--header-h));
+  height: 85svh;
+  min-height: 520px;
+}
+@media (min-width: 1024px) {
+  .kv {
+    height: calc(10.4 * var(--u));
+  }
+}
+/* Full-page mode: every page already fills the screen from the top. */
+@media (min-width: 1280px) and (min-aspect-ratio: 25/18) and (max-aspect-ratio: 5/2) {
+  .kv {
+    margin-top: 0;
+    height: auto;
+    min-height: 0;
+  }
+}
+
+.main {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 32px;
+  padding-bottom: 12%;
+}
+
+/* ---------- Slogans ---------- */
+.slogans {
+  position: relative;
+  z-index: 10;
+  width: min(86vw, 520px);
+  aspect-ratio: 1024 / 160;
+}
+.slogan {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.sloganOld {
+  opacity: 0;
+  animation: slogan-out 1s 0.1s ease-in-out;
+}
+.sloganNew {
+  animation: slogan-in 1s 0.1s ease-in-out;
+}
+
+/* ---------- Lightbox: tint + light + code, dropping in from above ---------- */
+.lightbox {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  background: rgb(0 0 0 / 0.3);
+  animation: lightbox-in 1s 0.1s ease-in-out;
+  pointer-events: none;
+}
+.light {
+  position: absolute;
+  bottom: -30%;
+  left: -15%;
+  width: 130%;
+  aspect-ratio: 2376 / 700;
+  background: url(/wegame/kv-light.svg) no-repeat center / contain;
+}
+.code {
+  position: absolute;
+  bottom: -30%;
+  width: 100%;
+  aspect-ratio: 1920 / 635;
+  background: url(/wegame/kv-code.svg) no-repeat center bottom / contain;
+}
+
+.download {
+  position: relative;
+  z-index: 10;
+}
+
+/* ---------- Scroll hint: four chevrons flowing downwards ---------- */
+.hint {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .main {
+    display: block;
+    padding: 0;
+  }
+  .slogans {
+    position: absolute;
+    bottom: calc(2.3 * var(--u));
+    left: 50%;
+    width: calc(10.24 * var(--u));
+    translate: -50% 0;
+  }
+  .light {
+    bottom: calc(-3 * var(--u));
+  }
+  .code {
+    bottom: calc(-3 * var(--u));
+    height: calc(8.64 * var(--u));
+    aspect-ratio: auto;
+  }
+  .download {
+    position: absolute;
+    bottom: calc(1.2 * var(--u));
+    left: 50%;
+    translate: -50% 0;
+  }
+
+  .hint {
+    display: block;
+    position: absolute;
+    bottom: 5vh;
+    left: 50%;
+    z-index: 20;
+    width: max(2vw, 24px);
+    translate: -50% 0;
+  }
+  .chevron {
+    position: absolute;
+    top: -2vh;
+    left: 0;
+    width: 100%;
+    aspect-ratio: 11 / 6;
+    opacity: 0;
+    animation: chevron-flow 2s linear infinite both;
+  }
+  .chevron::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url(/wegame/icon-row.svg) no-repeat center / 100% 100%;
+    animation: chevron-grow 2s linear infinite both;
+    animation-delay: inherit;
+  }
+  .chevron:nth-child(2) {
+    animation-delay: 0.5s;
+  }
+  .chevron:nth-child(3) {
+    animation-delay: 1s;
+  }
+  .chevron:nth-child(4) {
+    animation-delay: 1.5s;
+  }
+}
+
+@keyframes slogan-out {
+  0%,
+  82% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes slogan-in {
+  0%,
+  82% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes lightbox-in {
+  0%,
+  78% {
+    transform: translateY(-140vh);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes chevron-flow {
+  0% {
+    opacity: 0;
+    transform: translateY(-2vh);
+  }
+  33.3% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  66.6%,
+  100% {
+    opacity: 0;
+    transform: translateY(2vh);
+  }
+}
+@keyframes chevron-grow {
+  0%,
+  100% {
+    transform: scale(0);
+  }
+  20%,
+  60% {
+    transform: scale(1);
+  }
+}

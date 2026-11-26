@@ -16,13 +16,26 @@ import { BASE_CURRENCY } from "@/data/currencies";
 interface PriceProps {
   priceCny: number;
   className?: string;
+  /**
+   * Struck-through "was" price next to a discount. It skips the (¥…)
+   * reference, which the discounted price next to it already shows.
+   */
+  strike?: boolean;
 }
 
-export default function Price({ priceCny, className = "" }: PriceProps) {
+export default function Price({ priceCny, className = "", strike = false }: PriceProps) {
   const { currency, rate, converted } = useAppSelector(selectDisplayCurrency);
 
   if (priceCny === 0) {
     return <span className={`font-bold text-emerald-400 ${className}`}>免费游玩</span>;
+  }
+
+  if (strike) {
+    return (
+      <s className={`text-xs text-white/40 ${className}`}>
+        {formatPrice(priceCny * rate, currency)}
+      </s>
+    );
   }
 
   return (

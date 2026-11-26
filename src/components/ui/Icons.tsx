@@ -50,6 +50,46 @@ export const ChevronDownIcon = (p: IconProps) => (
   </BaseIcon>
 );
 
+export const ChevronLeftIcon = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <path d="M15 6l-6 6 6 6" />
+  </BaseIcon>
+);
+
+export const ChevronRightIcon = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <path d="M9 6l6 6-6 6" />
+  </BaseIcon>
+);
+
+export const CheckIcon = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </BaseIcon>
+);
+
+/** Screen with a play triangle: video view counts. */
+export const PlayIcon = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <rect x="3.5" y="5" width="17" height="14" rx="2" />
+    <path d="M10.5 9.5v5l4-2.5z" fill="currentColor" />
+  </BaseIcon>
+);
+
+/** Eye: live stream viewer counts. */
+export const EyeIcon = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" />
+    <circle cx="12" cy="12" r="2.5" />
+  </BaseIcon>
+);
+
+export const HeartIcon = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z" />
+  </BaseIcon>
+);
+
 export const DownloadIcon = (p: IconProps) => (
   <BaseIcon {...p}>
     <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />

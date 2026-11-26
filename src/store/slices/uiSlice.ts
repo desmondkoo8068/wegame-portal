@@ -7,20 +7,25 @@
  *   store *which* one is open instead of a boolean per dropdown.
  * - isLocaleModalOpen: the 地区与货币 modal is opened from the header and
  *   the mobile menu, and rendered once elsewhere.
- * - activePage: the full-screen page currently in view. The side nav
- *   highlights its group, and the page itself plays its entrance animation.
+ * - activePage / pageStep: the home page "slide" on screen (and the step
+ *   inside it, e.g. 02 焕新 has two). The side nav, the footer, videos and
+ *   each page's entrance animation all depend on it.
+ * - isFullPage: true when the screen suits the desktop slideshow (wide,
+ *   landscape). Otherwise the home page is a normal scrolling page.
  *
  * Purely local state (e.g. which tab a carousel shows) stays in that
  * component's useState. Redux is for state that is *shared*.
  */
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { PageId } from "@/data/home";
+import { pageIndex, pages, type PageId } from "@/data/home";
 
 export interface UiState {
   isMobileMenuOpen: boolean;
   openDropdownId: string | null;
   isLocaleModalOpen: boolean;
   activePage: PageId;
+  pageStep: number;
+  isFullPage: boolean;
 }
 
 const initialState: UiState = {
@@ -29,6 +34,9 @@ const initialState: UiState = {
   isLocaleModalOpen: false,
   // The hero is what's on screen when the page first loads.
   activePage: "kv",
+  pageStep: 0,
+  // Decided in the browser (PageFlow); the server can't know the screen size.
+  isFullPage: false,
 };
 
 const uiSlice = createSlice({
@@ -60,8 +68,34 @@ const uiSlice = createSlice({
     closeLocaleModal(state) {
       state.isLocaleModalOpen = false;
     },
-    setActivePage(state, action: PayloadAction<PageId>) {
+    /** Jump straight to a page (side nav, back-to-top, scroll tracking). */
+    goToPage(state, action: PayloadAction<PageId>) {
+      if (state.activePage === action.payload) return;
       state.activePage = action.payload;
+      state.pageStep = 0;
+    },
+    /**
+     * One wheel/keyboard step forwards (+1) or backwards (-1).
+     * Steps inside the current page come first; then the flow moves to the
+     * next page, entering on its first step (or its last one when going back).
+     * Kept here as a pure function of the state, so it's easy to test.
+     */
+    scrollPage(state, action: PayloadAction<1 | -1>) {
+      const direction = action.payload;
+      const index = pageIndex(state.activePage);
+      const step = state.pageStep + direction;
+
+      if (step >= 0 && step < pages[index].steps) {
+        state.pageStep = step;
+        return;
+      }
+      const next = pages[index + direction];
+      if (!next) return; // already at the first/last page
+      state.activePage = next.id;
+      state.pageStep = direction === 1 ? 0 : next.steps - 1;
+    },
+    setFullPage(state, action: PayloadAction<boolean>) {
+      state.isFullPage = action.payload;
     },
   },
 });
@@ -73,7 +107,9 @@ export const {
   closeDropdown,
   openLocaleModal,
   closeLocaleModal,
-  setActivePage,
+  goToPage,
+  scrollPage,
+  setFullPage,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

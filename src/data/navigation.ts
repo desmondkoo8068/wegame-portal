@@ -27,7 +27,7 @@ export interface NavItem {
 
 export const mainNav: NavItem[] = [
   { id: "home", label: "首页", href: "/" },
-  { id: "store", label: "商店", href: "#" },
+  { id: "store", label: "商店", href: "/store" },
   {
     id: "developers",
     label: "开发者平台",

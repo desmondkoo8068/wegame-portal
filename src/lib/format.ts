@@ -40,6 +40,15 @@ function hasAmbiguousSymbol(currency: string) {
   return symbol !== undefined && symbol in SHARED_SYMBOLS && SHARED_SYMBOLS[symbol] !== currency;
 }
 
+/**
+ * View/viewer counts the way Chinese sites show them:
+ * 7221 -> "7221", 16000 -> "1.6万", 111000 -> "11.1万" (万 = 10,000).
+ */
+export function formatCount(count: number) {
+  if (count < 10000) return String(count);
+  return `${Number((count / 10000).toFixed(1))}万`;
+}
+
 /** "MY" -> "马来西亚" */
 export function countryName(countryCode: string) {
   return new Intl.DisplayNames([LOCALE], { type: "region" }).of(countryCode) ?? countryCode;

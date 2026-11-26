@@ -1,6 +1,6 @@
 # WeGame Portal: Frontend Engineering Challenge
 
-A responsive recreation of the [WeGame home page](https://www.wegame.com.cn/home/), installable as a Progressive Web App, with the geolocation + local currency bonus.
+A responsive recreation of the [WeGame home page](https://www.wegame.com.cn/home/) and [store](https://www.wegame.com.cn/store/), installable as a Progressive Web App, with the geolocation + local currency bonus.
 
 **Live:** https://wegame-portal.vercel.app · **Repo:** https://github.com/desmondkoo8068/wegame-portal
 
@@ -8,6 +8,7 @@ A responsive recreation of the [WeGame home page](https://www.wegame.com.cn/home
 |---|---|
 | Responsive UI mockup (desktop / tablet / mobile) | `src/components/home`, `src/components/layout` |
 | Core interactions | Feature slider, rotating slogans, header dropdowns, sticky header, 01–05 side nav, mobile menu |
+| Store pages | `/store`: banner carousel, release timeline, reservations, rankings, infinite-scroll recommendations. `/store/video` (直播与视频): video and live-stream grids with tab + game filters. `/store/ai` (AI 游戏): showcase carousel and game list with screenshot previews (`src/components/store`) |
 | PWA: manifest, icons, service worker, offline page | `src/app/manifest.ts`, `public/sw.js`, `public/offline.html` |
 | Deployed on Vercel | https://wegame-portal.vercel.app (redeploys on every push to `main`) |
 | Bonus: geolocation → local currency | 地区与货币 button in the header (`src/components/locale`) |
@@ -41,15 +42,16 @@ Checks: `npm run lint` and `npm run typecheck`.
 
 ```
 src/
-  app/            layout, home page, web app manifest, /api/games route
+  app/            layout, home page, store pages (/store layout + 精选, ai, video), web app manifest, /api routes
   components/
     home/         one component per full-screen section (hero, 01–05, closing banner)
     layout/       header, mobile menu, footer, side nav, page tracker, SW registration
+    store/        store sections (banner, timeline, reservations, rankings, recommendations), video/ and ai/ page parts
     locale/       geolocation + currency button and modal (bonus)
-    ui/           reusable pieces: Stage, AutoVideo, Price, ErrorState, icons
-  data/           static content: navigation, page order, games, currency table
-  lib/            hooks (useCarousel, useDropdown, useGames) and helpers (geo, format)
-  store/          Redux store, typed hooks, slices (ui, games, geo)
+    ui/           reusable pieces: AutoVideo, DownloadButton, Price, ErrorState, icons
+  data/           static content: navigation, page order, games, store (+ storeVideo, storeAi), currency table
+  lib/            hooks (useCarousel, useDropdown, useGames, useStorefront, useHorizontalScroll) and helpers (geo, format)
+  store/          Redux store, typed hooks, slices (ui, games, geo, storefront)
 public/
   wegame/         images and videos taken from the live site (see Assets)
   icons/          PWA icons (standard + maskable)
@@ -68,29 +70,38 @@ Redux holds only state that several components share. State used by a single com
 | `ui` | mobile menu, open dropdown, currency modal, **active page** | The hamburger and the menu panel are separate components. The active page drives both the side nav highlight and each section's entrance animation. |
 | `games` | game catalogue from `/api/games` | Used by the poster wall and the currency modal |
 | `geo` | location, currency, exchange rates | Every `<Price>` on the page converts with it |
+| `storefront` | store content, paginated recommendations, reserved games | Kept between page visits (no refetch). A reservation made in the banner or a card also shows in the 预约之星 ranking. |
 
-The async work (`fetchGames`, `detectLocation`, `fetchRates`) uses `createAsyncThunk` with `idle / loading / succeeded / failed` states. `condition` guards make sure that several components asking for the same data trigger only one request.
+The async work (`fetchGames`, `detectLocation`, `fetchRates`, `fetchStorefront`, `fetchMoreRecommendations`) uses `createAsyncThunk` with `idle / loading / succeeded / failed` states. `condition` guards make sure that several components asking for the same data trigger only one request.
 
 ### Loading and error states
 
 - **Game posters:** skeletons while loading; a retry message if the request fails.
+- **Store:** a skeleton shaped like the layout while `/api/store` loads, or an error with 重试. Recommendations load independently, page by page as you scroll, with skeleton cards and their own retry.
 - **Videos (`AutoVideo`):** show a poster frame until playable and keep it if the video fails. They only play while their section is on screen, and never autoplay when the visitor prefers reduced motion.
 - **Geolocation:** each failure has its own message and fix: unsupported browser, permission denied, position unavailable, timeout, lookup failed. A manual currency picker is always available.
 - **Exchange rates:** if they fail to load, prices stay in CNY instead of disappearing.
+
+### Fetched vs. server-rendered content
+
+`/store` loads its content on the client through Redux thunks, which shows real loading and error states. `/store/video` and `/store/ai` hold static content, so they are Server Components that read `src/data` directly: the HTML arrives complete, with nothing to load or fail. Only their interactive parts (filters, carousel, screenshot previews) are Client Components, and those use local `useState` because no other component needs that state. Reservations are the exception: 预约 buttons on every store page share `storefront.reservedIds` in Redux.
+
+The store sub-nav lives in `src/app/store/layout.tsx`, a nested layout, so it stays mounted while you move between store pages.
 
 ### CSS architecture
 
 `src/app/globals.css` is organised in three layers:
 
 1. **Design tokens** in `@theme`: colours sampled from the live site, the font stack and animations. Tailwind turns them into utilities such as `bg-brand`.
-2. **Base:** page scroll-snapping and reduced-motion handling.
-3. **Components:** a few reusable classes, e.g. `.page-section`, `.stage`, `.reveal` and the button styles.
+2. **Base:** element defaults and reduced-motion handling.
+3. **Components:** a few reusable classes (buttons, dropdowns, ranking board), plus the home page flow layer.
+4. **CSS Modules:** each home section keeps its own layout and animations in `src/components/home/*.module.css`.
 
 Everything else is Tailwind utilities in the JSX.
 
-The live site is designed on a 1440×900 canvas. A `--dp` CSS variable ("design pixel") and the `<Stage>` / `<StageItem>` components scale that canvas to any desktop viewport. This lets the desktop composition use the real site's coordinates. Below 1024px, sections switch to a normal stacked layout.
+The live site is drawn on a 1920px-wide canvas. A `--u` CSS variable (1 unit = 100 design px, scaled to the window) lets each section use the real site's measurements: `calc(2.6 * var(--u))`.
 
-On desktop, sections snap one per screen using CSS `scroll-snap` rather than wheel hijacking, so keyboard, trackpad and the scrollbar all behave normally. An `IntersectionObserver` (`PageTracker`) reports the visible section to Redux.
+**Home page flow.** Like the live site, on wide landscape screens (≥1280px, aspect 25:18 to 5:2) the home page is a slideshow rather than a scrolling page: sections are stacked and the active one cross-fades in (0.5s). `PageFlow` listens to the wheel (throttled to one step per 1.5s, as on the live site), arrow/Page keys and swipes, and moves through Redux (`ui.activePage` and `ui.pageStep`; 02 焕新 has two steps). The 01–05 side nav, TOP button, videos and the footer (shown only on the last page) read the same state. Each section starts its entrance animation from `data-active="true"`, so it replays every time you arrive. On phones, tablets and other screens the same sections simply stack and scroll, and an `IntersectionObserver` reports the visible section to Redux.
 
 ### PWA
 
@@ -101,7 +112,7 @@ On desktop, sections snap one per screen using CSS `scroll-snap` rather than whe
 | Pages | Network first, then the cached page, then `offline.html` |
 | `/_next/static/*` (hashed build files) | Cache first |
 | Images and icons | Stale-while-revalidate |
-| `/api/games` | Network first, with the cache as fallback |
+| `/api/*` (games, store) | Network first, with the cache as fallback |
 | Videos | Not cached (large files that use range requests) |
 
 On a first visit the worker isn't in control yet, so the page sends it the list of files it already loaded. This makes the site work offline from the second visit onward. Cache lookups ignore `Vary`, because `next/image` responses vary on `Accept`.

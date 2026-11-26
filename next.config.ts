@@ -18,7 +18,10 @@ const nextConfig: NextConfig = {
   },
   turbopack: {
     rules: {
-      "*.css": {
+      // Tailwind only processes the global stylesheet. A catch-all "*.css"
+      // rule would also catch *.module.css files and turn them into plain
+      // global CSS (no scoped class names), so it's limited to globals.css.
+      "globals.css": {
         loaders: ["@tailwindcss/turbopack"],
         as: "*.css",
       },
